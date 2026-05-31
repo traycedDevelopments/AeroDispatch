@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AeroDispatch — Piloten-Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="topbar-left">
+        <svg class="logo" viewBox="0 0 32 32" fill="none" aria-label="AeroDispatch" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M8 20 L16 8 L24 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M11 17 L21 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="16" cy="22" r="1.5" fill="currentColor"/>
+        </svg>
+        <span class="brand">AeroDispatch</span>
+        <span class="version-badge">P1</span>
+      </div>
+      <div class="topbar-right">
+        <div class="pilot-info">
+          <span class="pilot-label">Pilot</span>
+          <span class="pilot-callsign" id="pilotCallsign">Christoph 51</span>
+        </div>
+        <div class="ws-indicator" id="wsIndicator" title="Realtime">⚡</div>
+        <div class="connection-dot" id="connectionDot" title="API"></div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel unit-panel">
+        <div class="panel-header">
+          <h2>Meine Einheit</h2>
+          <button class="btn btn-ghost btn-sm" id="refreshBtn">↻</button>
+        </div>
+        <div id="unitCard" class="unit-card skeleton-box">Laden…</div>
+        <div class="status-buttons" id="statusButtons"></div>
+      </section>
+
+      <section class="panel incidents-panel">
+        <div class="panel-header">
+          <h2>Einsätze</h2>
+          <button class="btn btn-primary btn-sm" id="newIncidentBtn">+ Neuer Einsatz</button>
+        </div>
+        <div id="incidentList" class="incident-list">Laden…</div>
+      </section>
+
+      <section class="panel log-panel">
+        <div class="panel-header">
+          <h2>Echtzeit-Log</h2>
+          <span class="ws-status" id="wsStatus">verbinde…</span>
+        </div>
+        <div id="statusLog" class="status-log">Kein Eintrag.</div>
+      </section>
+    </main>
+  </div>
+
+  <!-- New Incident Modal -->
+  <div class="modal-backdrop hidden" id="modalBackdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Neuer Einsatz">
+      <div class="modal-header">
+        <h3>Neuer Einsatz</h3>
+        <button class="btn btn-ghost btn-sm" id="closeModal">✕</button>
+      </div>
+      <form id="incidentForm" class="modal-form">
+        <label>Stichwort
+          <input type="text" name="code" placeholder="z.B. NA-Notfall" required />
+        </label>
+        <label>Bezeichnung
+          <input type="text" name="title" placeholder="Kurze Beschreibung" required />
+        </label>
+        <label>Priorität
+          <select name="priority">
+            <option value="1">1 — Höchste</option>
+            <option value="2" selected>2 — Dringend</option>
+            <option value="3">3 — Normal</option>
+          </select>
+        </label>
+        <label>Einsatzort
+          <input type="text" name="locationName" placeholder="Ortsname" required />
+        </label>
+        <div class="coord-row">
+          <label>Lat <input type="number" name="lat" step="0.0001" placeholder="48.8" /></label>
+          <label>Lng <input type="number" name="lng" step="0.0001" placeholder="9.3" /></label>
+        </div>
+        <label>Zielklinik (optional)
+          <input type="text" name="destName" placeholder="Klinikname" />
+        </label>
+        <label>Notizen
+          <textarea name="notes" rows="2" placeholder="Einsatzdetails…"></textarea>
+        </label>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="cancelModal">Abbrechen</button>
+          <button type="submit" class="btn btn-primary">Erstellen</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
