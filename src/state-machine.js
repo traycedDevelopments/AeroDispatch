@@ -1,54 +1,57 @@
 export const UnitStatuses = {
-  AVAILABLE: 'available',
-  ALARMED: 'alarmed',
-  ENROUTE: 'enroute',
-  ON_SCENE: 'on_scene',
-  PATIENT_ON_BOARD: 'patient_on_board',
-  ENROUTE_HOSPITAL: 'enroute_hospital',
-  AT_HOSPITAL: 'at_hospital',
-  OUT_OF_SERVICE: 'out_of_service'
+  AVAILABLE: 'AVAILABLE',
+  ALARMED: 'ALARMED',
+  RESPONDING: 'RESPONDING',
+  ON_SCENE: 'ON_SCENE',
+  PATIENT_LOADED: 'PATIENT_LOADED',
+  AT_HOSPITAL: 'AT_HOSPITAL',
+  RETURNING: 'RETURNING',
+  UNAVAILABLE: 'UNAVAILABLE'
 };
 
 export const IncidentStatuses = {
-  PENDING: 'pending',
-  DISPATCHED: 'dispatched',
-  ACTIVE: 'active',
-  TRANSPORTING: 'transporting',
-  COMPLETED: 'completed',
-  CANCELLED: 'cancelled'
+  PENDING: 'PENDING',
+  DISPATCHED: 'DISPATCHED',
+  RESPONDING: 'RESPONDING',
+  ON_SCENE: 'ON_SCENE',
+  PATIENT_LOADED: 'PATIENT_LOADED',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
 };
 
-const allowedTransitions = {
-  [UnitStatuses.AVAILABLE]: [UnitStatuses.ALARMED, UnitStatuses.OUT_OF_SERVICE],
-  [UnitStatuses.ALARMED]: [UnitStatuses.ENROUTE, UnitStatuses.AVAILABLE],
-  [UnitStatuses.ENROUTE]: [UnitStatuses.ON_SCENE, UnitStatuses.AVAILABLE],
-  [UnitStatuses.ON_SCENE]: [UnitStatuses.PATIENT_ON_BOARD, UnitStatuses.AVAILABLE],
-  [UnitStatuses.PATIENT_ON_BOARD]: [UnitStatuses.ENROUTE_HOSPITAL, UnitStatuses.AVAILABLE],
-  [UnitStatuses.ENROUTE_HOSPITAL]: [UnitStatuses.AT_HOSPITAL, UnitStatuses.AVAILABLE],
-  [UnitStatuses.AT_HOSPITAL]: [UnitStatuses.AVAILABLE],
-  [UnitStatuses.OUT_OF_SERVICE]: [UnitStatuses.AVAILABLE]
+const TRANSITIONS = {
+  AVAILABLE:      ['ALARMED', 'UNAVAILABLE'],
+  ALARMED:        ['RESPONDING', 'AVAILABLE'],
+  RESPONDING:     ['ON_SCENE', 'AVAILABLE'],
+  ON_SCENE:       ['PATIENT_LOADED', 'AVAILABLE'],
+  PATIENT_LOADED: ['AT_HOSPITAL'],
+  AT_HOSPITAL:    ['RETURNING', 'AVAILABLE'],
+  RETURNING:      ['AVAILABLE'],
+  UNAVAILABLE:    ['AVAILABLE']
 };
 
-export function canTransitionUnitStatus(current, next) {
-  return (allowedTransitions[current] || []).includes(next);
+export function canTransitionUnitStatus(from, to) {
+  return TRANSITIONS[from]?.includes(to) ?? false;
 }
 
 export function deriveIncidentStatus(unitStatus, currentIncidentStatus) {
-  switch (unitStatus) {
-    case UnitStatuses.ALARMED:
-      return IncidentStatuses.DISPATCHED;
-    case UnitStatuses.ENROUTE:
-    case UnitStatuses.ON_SCENE:
-      return IncidentStatuses.ACTIVE;
-    case UnitStatuses.PATIENT_ON_BOARD:
-    case UnitStatuses.ENROUTE_HOSPITAL:
-    case UnitStatuses.AT_HOSPITAL:
-      return IncidentStatuses.TRANSPORTING;
-    case UnitStatuses.AVAILABLE:
-      return currentIncidentStatus === IncidentStatuses.CANCELLED
-        ? IncidentStatuses.CANCELLED
-        : IncidentStatuses.COMPLETED;
-    default:
-      return currentIncidentStatus;
-  }
+  const map = {
+    RESPONDING:     'RESPONDING',
+    ON_SCENE:       'ON_SCENE',
+    PATIENT_LOADED: 'PATIENT_LOADED',
+    AT_HOSPITAL:    'COMPLETED',
+    AVAILABLE:      currentIncidentStatus === 'DISPATCHED' ? 'CANCELLED' : 'COMPLETED'
+  };
+  return map[unitStatus] ?? currentIncidentStatus;
 }
+
+export const STATUS_LABELS = {
+  AVAILABLE:      'Frei',
+  ALARMED:        'Alarmiert',
+  RESPONDING:     'Auf Anfahrt',
+  ON_SCENE:       'Vor Ort',
+  PATIENT_LOADED: 'Patient aufgenommen',
+  AT_HOSPITAL:    'Klinik',
+  RETURNING:      'Rückfahrt',
+  UNAVAILABLE:    'Nicht verfügbar'
+};
